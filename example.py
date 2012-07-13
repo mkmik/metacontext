@@ -1,4 +1,5 @@
 #- LANGUAGE match-statement -#
 
-def test():
-    print "wow"
+def test(msg):
+    match msg:
+        print "got", msg

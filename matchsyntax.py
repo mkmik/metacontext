@@ -22,13 +22,26 @@ class MatchStatementImportHook(object):
 
         with open(self.src_name(fullname)) as src:
             translated = tokenize.untokenize(self.translate(src.readline))
+            print "Translated source:"
+            print translated
+            print "----------"
             exec translated in m.__dict__
 
         return m
 
     def translate(self, readline):
+        skip = 0
         for type, name, _, _, _ in tokenize.generate_tokens(readline):
-            yield type, name
+            if type == tokenize.NAME and name == 'match':
+                yield tokenize.NAME, 'if'
+                yield tokenize.STRING, 'True'
+                yield tokenize.OP, ':'
+                skip = 2
+            else:
+                if skip > 0:
+                    skip -= 1
+                else:
+                    yield type, name
 
 
 def register_match_importer():

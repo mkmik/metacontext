@@ -4,4 +4,4 @@ matchsyntax.register_match_importer()
 
 import example
 
-example.test()
+example.test(('test', 1))
