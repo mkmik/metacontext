@@ -65,7 +65,19 @@ class MatchStatementImportHook(object):
                 yield tokenize.STRING, 'True'
                 yield tokenize.OP, ':'
 
-                until(tokenize.OP, ':')
+                # doesn't handle "case ....: statement1; statement2;"
+                indent = until(tokenize.INDENT, ANY)
+
+                yield tokenize.NL, '\n'
+                yield tokenize.INDENT, indent
+
+                # shift line positions by 1
+                line_pos_offsets[start_pos[0]+1] = 1
+
+                yield tokenize.NAME, 'print'
+                yield tokenize.String, '"fun trace line: %s"' % (start_pos[0]+1)
+                yield tokenize.NL, '\n'
+
             else:
                 yield typ, name
 
