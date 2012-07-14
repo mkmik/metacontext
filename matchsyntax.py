@@ -31,9 +31,8 @@ class MatchStatementImportHook(object):
             print "----------"
             print "line offsets", line_pos_offsets
             print "----------"
-            # TODO find a way to handle flags for handling __future__ (PEP236) statements
-            # currently future are inherited from this source
-            compiled = compile(translated, self.src_name(fullname), 'exec')
+
+            compiled = compile(translated, self.src_name(fullname), 'exec', 0, True)
             exec compiled in m.__dict__
 
             self.patch_line_numbers(m, line_pos_offsets)
