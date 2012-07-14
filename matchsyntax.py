@@ -5,10 +5,11 @@ import sys
 import tokenize
 
 
-class MatchStatementImportHook(object):
+class TranslatorImportHook(object):
 
-    def __init__(self):
-        self.translator = MatchStatementTranslator()
+    def __init__(self, translator, tag):
+        self.tag = tag
+        self.translator = translator
         self.line_pos_patcher = LinePositionPatcher(self.translator.line_pos_offsets)
 
     def src_name(self, fullname):
@@ -17,7 +18,7 @@ class MatchStatementImportHook(object):
     def find_module(self, fullname, path=None):
         if os.path.exists(self.src_name(fullname)):
             with open(self.src_name(fullname)) as f:
-                if f.readline().startswith('#- LANGUAGE match-statement -#'):
+                if f.readline().startswith('#- LANGUAGE %s -#' % self.tag):
                     return self
         return None
 
@@ -198,4 +199,4 @@ def absolutize(firstlineno, unpacked):
 
 
 def register_match_importer():
-    sys.meta_path.insert(0, MatchStatementImportHook())
+    sys.meta_path.insert(0, TranslatorImportHook(MatchStatementTranslator(), 'match-statement'))
