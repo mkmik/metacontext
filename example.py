@@ -2,4 +2,7 @@
 
 def test(msg):
     match msg:
-        print "got", msg
+        case ('test', a):
+            print "TEST", msg
+        case ('other', a):
+            print "OTHER", msg

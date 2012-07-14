@@ -44,6 +44,12 @@ class MatchStatementImportHook(object):
                 yield tokenize.OP, ':'
 
                 until(tokenize.OP, ':')
+            elif type == tokenize.NAME and name == 'case':
+                yield tokenize.NAME, 'if'
+                yield tokenize.STRING, 'True'
+                yield tokenize.OP, ':'
+
+                until(tokenize.OP, ':')
             else:
                 yield type, name
 
