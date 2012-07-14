@@ -65,10 +65,12 @@ class MatchStatementImportHook(object):
             for (op_pos, pos), (_, delta) in zip(absolutize(firstlineno, positions), positions):
                 yield op_pos, delta - line_pos_offsets.get(pos, 0)
 
-        return self.clone_code(code, firstlineno, pack(patch(unpack(code.co_lnotab))))
+        consts = tuple(self.patch_code(c, line_pos_offsets) if inspect.iscode(c) else c for c in code.co_consts)
 
-    def clone_code(self, c, firstlineno, lnotab):
-        return (new.code(c.co_argcount,c.co_nlocals,c.co_stacksize,c.co_flags,c.co_code,c.co_consts,c.co_names,c.co_varnames,c.co_filename,c.co_name,firstlineno,lnotab,c.co_freevars,c.co_cellvars))
+        return self.clone_code(code, consts, firstlineno, pack(patch(unpack(code.co_lnotab))))
+
+    def clone_code(self, c, consts, firstlineno, lnotab):
+        return (new.code(c.co_argcount,c.co_nlocals,c.co_stacksize,c.co_flags,c.co_code,consts,c.co_names,c.co_varnames,c.co_filename,c.co_name,firstlineno,lnotab,c.co_freevars,c.co_cellvars))
 
     def print_lnotab(self, code, tab=None):
         if not tab:
