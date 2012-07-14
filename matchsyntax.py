@@ -60,7 +60,7 @@ class MatchStatementImportHook(object):
         there is a line position information for a given statement.
 
         """
-        firstlineno = code.co_firstlineno
+        firstlineno = code.co_firstlineno - sum([offset for line, offset in line_pos_offsets.items() if line < code.co_firstlineno])
 
         def patch(positions):
             for (op_pos, pos), (_, delta) in zip(absolutize(firstlineno, positions), positions):

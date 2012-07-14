@@ -11,12 +11,18 @@ class TestException(Exception):
     pass
 
 
+def other_test(msg):
+    match msg:
+        case ('test', a):
+            print "TEST", msg
+
+
 def test(msg):
     match msg:
         case ('test', a):
             print "TEST", msg
-            print "LINE NR SHOULD BE 18", lineno()
-            assert lineno() == 19
+            print "LINE NR SHOULD BE 24", lineno()
+            assert lineno() == 25
         case ('other', a):
             print "OTHER", msg
             raise TestException("let's look at the stack trace")

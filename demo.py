@@ -12,7 +12,7 @@ try:
 except example.TestException:
     e = traceback.format_exc()
     print "GOT TRACEBACK", e
-    assert 'File "example.py", line 22, in test' in e
+    assert 'File "example.py", line 28, in test' in e
     assert 'raise TestException("let\'s look at the stack trace")' in e
 
 print "---------"
