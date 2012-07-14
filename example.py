@@ -32,8 +32,17 @@ def test(msg):
 
 
 class MyActor(object):
+    class Inner(object):
+        def process(self, msg):
+            match msg:
+                case ('test', a):
+                    assert lineno() == 39
+
+
     def run(self):
         msg = ('test', 1)
         match msg:
             case ('test', a):
-                assert lineno() == 39
+                assert lineno() == 46
+
+        self.Inner().process(msg)

@@ -55,6 +55,8 @@ class MatchStatementImportHook(object):
         for i in cls.__dict__.values():
             if inspect.isfunction(i):
                 self.patch_function(i, line_pos_offsets)
+            if inspect.isclass(i):
+                self.patch_class(i, line_pos_offsets)
 
     def patch_code(self, code, line_pos_offsets):
         """Creates a new code object with patched line position
