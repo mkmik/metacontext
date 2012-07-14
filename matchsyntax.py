@@ -21,23 +21,39 @@ class MatchStatementImportHook(object):
         m = new.module(fullname)
 
         with open(self.src_name(fullname)) as src:
-            translated = tokenize.untokenize(self.translate(src.readline))
+            line_pos_offsets = {}
+            translated = tokenize.untokenize(self.translate(src.readline, line_pos_offsets))
             print "Translated source:"
             print translated
+            print "----------"
+            print "line offsets", line_pos_offsets
             print "----------"
             exec translated in m.__dict__
 
         return m
 
-    def translate(self, readline):
+    op = {tokenize.NAME: 'NAME',
+          tokenize.OP: 'OP',
+          tokenize.INDENT: 'INDENT',
+          tokenize.DEDENT: 'DEDENT',
+          tokenize.NEWLINE: 'NEWLINE',
+          tokenize.NL: 'NL',
+          tokenize.COMMENT: 'COMMENT',
+          }
+
+    def translate(self, readline, line_pos_offsets):
         tokens = tokenize.generate_tokens(readline)
+
+        ANY = object()
 
         def until(typ, name):
             for t, n, _, _, _ in tokens:
-                if t == typ and n == name:
-                    return
+                if t == typ and (name == ANY or n == name):
+                    return n
 
-        for typ, name, _, _, _ in tokens:
+        for typ, name, start_pos, _, _ in tokens:
+            print "GOT: %s(%s)" % (self.op.get(typ, typ), repr(name))
+
             if typ == tokenize.NAME and name == 'match':
                 yield tokenize.NAME, 'if'
                 yield tokenize.STRING, 'True'
