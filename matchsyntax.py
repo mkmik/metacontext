@@ -40,7 +40,6 @@ class MatchStatementImportHook(object):
         return m
 
     def patch_line_numbers(self, module, line_pos_offsets):
-        print "module has", dir(module)
         for k in dir(module):
             member = getattr(module, k)
             if inspect.isfunction(member):
