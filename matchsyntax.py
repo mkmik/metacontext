@@ -30,18 +30,22 @@ class MatchStatementImportHook(object):
         return m
 
     def translate(self, readline):
-        skip = 0
-        for type, name, _, _, _ in tokenize.generate_tokens(readline):
+        tokens = tokenize.generate_tokens(readline)
+
+        def until(type, name):
+            for t, n, _, _, _ in tokens:
+                if t == type and n == name:
+                    return
+
+        for type, name, _, _, _ in tokens:
             if type == tokenize.NAME and name == 'match':
                 yield tokenize.NAME, 'if'
                 yield tokenize.STRING, 'True'
                 yield tokenize.OP, ':'
-                skip = 2
+
+                until(tokenize.OP, ':')
             else:
-                if skip > 0:
-                    skip -= 1
-                else:
-                    yield type, name
+                yield type, name
 
 
 def register_match_importer():
