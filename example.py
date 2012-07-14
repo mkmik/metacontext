@@ -29,3 +29,11 @@ def test(msg):
         case ('other', a):
             print "OTHER", msg
             raise TestException("let's look at the stack trace")
+
+
+class MyActor(object):
+    def run(self):
+        msg = ('test', 1)
+        match msg:
+            case ('test', a):
+                assert lineno() == 39

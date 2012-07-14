@@ -17,5 +17,7 @@ except example.TestException:
 
 example.other_test(('test', 1))
 
+example.MyActor().run()
+
 print "---------"
 dis.dis(example.test)
