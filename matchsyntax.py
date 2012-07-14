@@ -5,8 +5,11 @@ import sys
 import tokenize
 
 
-
 class MatchStatementImportHook(object):
+
+    def __init__(self):
+        self.translator = MatchStatementTranslator()
+        self.line_pos_patcher = LinePositionPatcher(self.translator.line_pos_offsets)
 
     def src_name(self, fullname):
         return '%s.py' % fullname
@@ -23,9 +26,11 @@ class MatchStatementImportHook(object):
         m = new.module(fullname)
         m.__file__ = self.src_name(fullname)
 
+
         with open(self.src_name(fullname)) as src:
-            line_pos_offsets = {}
-            translated = tokenize.untokenize(self.translate(src.readline, line_pos_offsets))
+            translated = tokenize.untokenize(self.translator.translate(src.readline))
+            line_pos_offsets = self.translator.line_pos_offsets
+
             print "Translated source:"
             print translated
             print "----------"
@@ -35,29 +40,35 @@ class MatchStatementImportHook(object):
             compiled = compile(translated, self.src_name(fullname), 'exec', 0, True)
             exec compiled in m.__dict__
 
-            self.patch_line_numbers(m, line_pos_offsets)
+            self.line_pos_patcher.patch_line_numbers(m)
 
         return m
 
-    def patch_line_numbers(self, module, line_pos_offsets):
+
+class LinePositionPatcher(object):
+
+    def __init__(self, line_pos_offsets):
+        self.line_pos_offsets = line_pos_offsets
+
+    def patch_line_numbers(self, module):
         for k in dir(module):
             member = getattr(module, k)
             if inspect.isfunction(member):
-                self.patch_function(member, line_pos_offsets)
+                self.patch_function(member)
             elif inspect.isclass(member):
-                self.patch_class(member, line_pos_offsets)
+                self.patch_class(member)
 
-    def patch_function(self, fun, line_pos_offsets):
-        fun.func_code = self.patch_code(fun.func_code, line_pos_offsets)
+    def patch_function(self, fun):
+        fun.func_code = self.patch_code(fun.func_code)
 
-    def patch_class(self, cls, line_pos_offsets):
+    def patch_class(self, cls):
         for i in cls.__dict__.values():
             if inspect.isfunction(i):
-                self.patch_function(i, line_pos_offsets)
+                self.patch_function(i)
             if inspect.isclass(i):
-                self.patch_class(i, line_pos_offsets)
+                self.patch_class(i)
 
-    def patch_code(self, code, line_pos_offsets):
+    def patch_code(self, code):
         """Creates a new code object with patched line position
         in it's co_lntab field, according to the line_pos_offsets map
         which is prepared during code translation
@@ -67,13 +78,13 @@ class MatchStatementImportHook(object):
         there is a line position information for a given statement.
 
         """
-        firstlineno = code.co_firstlineno - sum([offset for line, offset in line_pos_offsets.items() if line < code.co_firstlineno])
+        firstlineno = code.co_firstlineno - sum([offset for line, offset in self.line_pos_offsets.items() if line < code.co_firstlineno])
 
         def patch(positions):
             for (op_pos, pos), (_, delta) in zip(absolutize(firstlineno, positions), positions):
-                yield op_pos, delta - line_pos_offsets.get(pos, 0)
+                yield op_pos, delta - self.line_pos_offsets.get(pos, 0)
 
-        consts = tuple(self.patch_code(c, line_pos_offsets) if inspect.iscode(c) else c for c in code.co_consts)
+        consts = tuple(self.patch_code(c) if inspect.iscode(c) else c for c in code.co_consts)
 
         return self.clone_code(code, consts, firstlineno, pack(patch(unpack(code.co_lnotab))))
 
@@ -87,6 +98,11 @@ class MatchStatementImportHook(object):
         for op_pos, line_nr in absolutize(code.co_firstlineno, unpack(tab)):
             print op_pos, line_nr
 
+
+class Translator(object):
+    def __init__(self):
+        self.line_pos_offsets = {}
+
     op = {tokenize.NAME: 'NAME',
           tokenize.OP: 'OP',
           tokenize.INDENT: 'INDENT',
@@ -96,7 +112,9 @@ class MatchStatementImportHook(object):
           tokenize.COMMENT: 'COMMENT',
           }
 
-    def translate(self, readline, line_pos_offsets):
+
+class MatchStatementTranslator(Translator):
+    def translate(self, readline):
         tokens = tokenize.generate_tokens(readline)
 
         ANY = object()
@@ -129,7 +147,7 @@ class MatchStatementImportHook(object):
                 # shift user's statement positions by 1
                 # the user's statement is 2 lines ahead of the case
                 # because we inserted 1 trace statement
-                line_pos_offsets[start_pos[0] + 2] = 1
+                self.line_pos_offsets[start_pos[0] + 2] = 1
 
                 yield tokenize.NAME, 'print'
                 yield tokenize.String, '"fun trace line: %s"' % (start_pos[0]+1)
