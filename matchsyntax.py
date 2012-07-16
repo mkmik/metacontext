@@ -1,4 +1,5 @@
 import sys
+import token
 import tokenize
 
 from syntaxtranslator import Translator, TranslatorImportHook
@@ -16,7 +17,7 @@ class MatchStatementTranslator(Translator):
                     return n
 
         for typ, name, start_pos, _, _ in tokens:
-            print "GOT: %s(%s)" % (self.op.get(typ, typ), repr(name))
+            print "GOT: %s(%s)" % (token.tok_name.get(typ, typ), repr(name))
 
             if typ == tokenize.NAME and name == 'match':
                 yield tokenize.NAME, 'if'

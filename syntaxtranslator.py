@@ -103,15 +103,6 @@ class Translator(object):
     def __init__(self):
         self.line_pos_offsets = {}
 
-    op = {tokenize.NAME: 'NAME',
-          tokenize.OP: 'OP',
-          tokenize.INDENT: 'INDENT',
-          tokenize.DEDENT: 'DEDENT',
-          tokenize.NEWLINE: 'NEWLINE',
-          tokenize.NL: 'NL',
-          tokenize.COMMENT: 'COMMENT',
-          }
-
 
 def unpack(tab):
     """Unpack a code line number table from a coded byte array
