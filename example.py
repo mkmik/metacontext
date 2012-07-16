@@ -1,6 +1,7 @@
 #- LANGUAGE match-statement -#
 
 import inspect
+from actor import match, case, _
 
 def lineno():
     """Returns the current line number in our program."""
@@ -13,20 +14,23 @@ class TestException(Exception):
 
 def other_test(msg):
     def closure():
-        match msg:
-           case ('test', a):
+        with match(msg):
+           with case ('test', _, _) as (a, b):
               print "CLOSURE LINE NR SHOULD BE 18", lineno()
-              assert lineno() == 19
+              assert lineno() == 20
+        pass
     closure()
 
 
 def test(msg):
-    match msg:
-        case ('test', a):
+    with match(msg):
+        with case ('test', _) as a:
             print "TEST", msg
+            if False:
+                print "A", a
             print "LINE NR SHOULD BE 27", lineno()
-            assert lineno() == 28
-        case ('other', a):
+            assert lineno() == 32
+        with case ('other', _):
             print "OTHER", msg
             raise TestException("let's look at the stack trace")
 
@@ -34,15 +38,17 @@ def test(msg):
 class MyActor(object):
     class Inner(object):
         def process(self, msg):
-            match msg:
-                case ('test', a):
-                    assert lineno() == 39
+            with match(msg):
+                with case('test', _):
+                    assert lineno() == 43
 
 
     def run(self):
         msg = ('test', 1)
-        match msg:
-            case ('test', a):
-                assert lineno() == 46
+        with match(msg):
+            with case ('test', _) as a:
+                assert lineno() == 50
+                print "wow"
 
         self.Inner().process(msg)
+

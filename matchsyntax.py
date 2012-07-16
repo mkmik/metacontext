@@ -16,16 +16,22 @@ class MatchStatementTranslator(Translator):
                 if t == typ and (name == ANY or n == name):
                     return n
 
-        for typ, name, start_pos, _, _ in tokens:
-            print "GOT: %s(%s)" % (token.tok_name.get(typ, typ), repr(name))
+        buffer = []
 
-            if typ == tokenize.NAME and name == 'match':
+        is_bol = True
+        in_with = False
+        for typ, name, start_pos, _, _ in tokens:
+            print "GOT: %s(%s) (in with: %s)" % (token.tok_name.get(typ, typ), repr(name), in_with)
+
+            if in_with and typ == tokenize.NAME and name == 'match':
                 yield tokenize.NAME, 'if'
                 yield tokenize.STRING, 'True'
                 yield tokenize.OP, ':'
 
                 until(tokenize.OP, ':')
-            elif typ == tokenize.NAME and name == 'case':
+
+                buffer = []
+            elif in_with and typ == tokenize.NAME and name == 'case':
                 yield tokenize.NAME, 'if'
                 yield tokenize.STRING, 'True'
                 yield tokenize.OP, ':'
@@ -45,9 +51,18 @@ class MatchStatementTranslator(Translator):
                 yield tokenize.String, '"fun trace line: %s"' % (start_pos[0]+1)
                 yield tokenize.NL, '\n'
 
+                buffer = []
             else:
-                yield typ, name
+                if is_bol and typ == tokenize.NAME and name == 'with':
+                    buffer.append((typ, name))
+                else:
+                    for t, n in buffer:
+                        yield t, n
+                    buffer = []
+                    yield typ, name
 
+            in_with = is_bol and typ == tokenize.NAME and name == 'with'
+            is_bol = typ == tokenize.NEWLINE or typ == tokenize.INDENT or typ == tokenize.DEDENT
 
 def register_match_importer():
     sys.meta_path.insert(0, TranslatorImportHook(MatchStatementTranslator(), 'match-statement'))
