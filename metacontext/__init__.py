@@ -83,9 +83,11 @@ class TranslatorLoader(object):
                     name = alias.name
                     as_name = alias.asname or name
 
-                    keyword_cls = getattr(mod, name)
-                    if inspect.isclass(keyword_cls) and issubclass(keyword_cls, Keyword):
-                        keywords[as_name] = getattr(mod, name)()
+                    keyword = getattr(mod, name)
+                    if inspect.isclass(keyword) and issubclass(keyword, Keyword):
+                        keywords[as_name] = keyword()
+                    elif isinstance(keyword, Keyword):
+                        keywords[as_name] = keyword
 
 
         return keywords
