@@ -46,6 +46,9 @@ class TranslatorImportHook(object):
         return None
 
 class TranslatorLoader(object):
+    DEBUG = True
+    #DEBUG = False
+
     def __init__(self, path):
         self.path = path
 
@@ -66,6 +69,11 @@ class TranslatorLoader(object):
             # transform only if we know about at least a keyword
             if known_keywords:
                 translated = SyntaxTransformer(known_keywords).visit(tree)
+                if self.DEBUG:
+                    from metacontext.unparse import Unparser
+                    print "-----"
+                    Unparser(translated)
+                    print "-----"
             else:
                 translated = tree
             compiled = compile(translated, self.src_name(fullname), 'exec', 0, True)
