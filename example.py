@@ -16,7 +16,7 @@ def other_test(msg):
     def closure():
         with match(msg):
            with case ('test', _, _) as (a, b):
-              print "CLOSURE LINE NR SHOULD BE 18", lineno()
+              print "CLOSURE LINE NR SHOULD BE 19", lineno()
               assert lineno() == 20
         pass
     closure()
