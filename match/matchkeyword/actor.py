@@ -1,6 +1,6 @@
 # dummy file just for exporting symbols
 
-from matchsyntax import match, case
+from matchkeyword.matchsyntax import match, case
 
 all = ['match', 'case', '_']
 

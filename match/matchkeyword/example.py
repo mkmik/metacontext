@@ -1,7 +1,7 @@
 #- LANGUAGE compile-time-context-manager -#
 
 import inspect
-from actor import match, case, _; from actor import case as base
+from matchkeyword.actor import match, case, _; from matchkeyword.actor import case as base
 
 def lineno():
     """Returns the current line number in our program."""
