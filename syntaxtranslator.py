@@ -7,7 +7,7 @@ import sys
 
 class TranslatorImportHook(object):
 
-    def __init__(self, tag):
+    def __init__(self, tag=None):
         self.tag = tag
 
     def src_name(self, fullname):
@@ -15,9 +15,15 @@ class TranslatorImportHook(object):
 
     def find_module(self, fullname, path=None):
         if os.path.exists(self.src_name(fullname)):
-            with open(self.src_name(fullname)) as f:
-                if f.readline().startswith('#- LANGUAGE %s -#' % self.tag):
-                    return self
+            # if the import hook was registered with a restriction tag,
+            # we have to check if it's present in the file
+            if self.tag:
+                with open(self.src_name(fullname)) as f:
+                    if f.readline().startswith('#- LANGUAGE %s -#' % self.tag):
+                        return self
+            # otherwise we just translate every single import
+            else:
+                return self
         return None
 
     def load_module(self, fullname):
