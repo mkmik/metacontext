@@ -22,8 +22,8 @@ def run():
 
     example.MyActor().run()
 
-    print "---------"
-    dis.dis(example.test)
+    #print "---------"
+    #dis.dis(example.test)
 
 
 if __name__ == '__main__':
