@@ -10,7 +10,7 @@ class MatchKeyword(Keyword):
     NoMatch = NoMatch
 
     def __call__(self, pattern):
-        return (True, None)
+        return (pattern[0] == 'test', None)
 
     def translate(self, body, args, var):
         die = ast.Raise(ast.Call(ast.Attribute(ast.Name('match', ast.Load()), 'NoMatch', ast.Load()), [], [], None, None), None, None)
