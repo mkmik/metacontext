@@ -103,7 +103,7 @@ class SyntaxTransformer(ast.NodeTransformer):
             keyword = self.keywords[node.context_expr.func.id]
             res = ast.copy_location(keyword.translate(node.body, node.context_expr, node.optional_vars), node)
             ast.fix_missing_locations(res)
-            res.body = [self.visit(i) for i in node.body]
+            res.body = [self.visit(i) for i in res.body]
             return res
         else:
             return node
