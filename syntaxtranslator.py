@@ -26,27 +26,30 @@ class TranslatorImportHook(object):
 
         with open(self.src_name(fullname)) as src:
             tree = ast.parse(src.read(), self.src_name(fullname))
-            translated = SyntaxTransformer().visit(tree)
+            known_keywords = self.parse_top_imports(tree)
+            translated = SyntaxTransformer(known_keywords).visit(tree)
             compiled = compile(translated, self.src_name(fullname), 'exec', 0, True)
             exec compiled in m.__dict__
 
         return m
 
+    def parse_top_imports(self, tree):
+        from matchsyntax import match, case
+
+        return {'match': match(), 'case': case()}
+
 
 class SyntaxTransformer(ast.NodeTransformer):
+    def __init__(self, keywords):
+        self.keywords = keywords
+
     def visit_With(self, node):
-        from matchsyntax import match, case
 
         node = self.generic_visit(node)
 
-        handler = None
-
-        if node.context_expr.func.id == 'match':
-            handler = match()
-        elif node.context_expr.func.id == 'case':
-            handler = case()
-        if handler:
-            res = ast.copy_location(handler.translate(node.body, node.context_expr, node.optional_vars), node)
+        if node.context_expr.func.id in self.keywords:
+            keyword = self.keywords[node.context_expr.func.id]
+            res = ast.copy_location(keyword.translate(node.body, node.context_expr, node.optional_vars), node)
             ast.fix_missing_locations(res)
             res.body = [self.visit(i) for i in node.body]
             return res
