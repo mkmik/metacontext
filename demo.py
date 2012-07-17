@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import syntaxtranslator
-syntaxtranslator.register_translator_importer()
+import metacontext
+metacontext.register_importer_hook()
 
 import dis
 import traceback

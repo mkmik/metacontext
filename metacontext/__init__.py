@@ -85,5 +85,5 @@ class Keyword(object):
     pass
 
 
-def register_translator_importer():
+def register_importer_hook():
     sys.meta_path.insert(0, TranslatorImportHook('compile-time-context-manager'))

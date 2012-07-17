@@ -1,6 +1,6 @@
 import ast
 
-from syntaxtranslator import Keyword
+from metacontext import Keyword
 
 
 class match(Keyword):
