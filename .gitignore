@@ -4,3 +4,7 @@ dist
 build
 *.egg-info
 RELEASE-VERSION
+.installed.cfg
+bin
+develop-eggs
+parts
