@@ -1,5 +1,7 @@
 # dummy file just for exporting symbols
 
-match = object()
-case = object()
+from matchsyntax import match, case
+
+all = ['match', 'case', '_']
+
 _ = object()

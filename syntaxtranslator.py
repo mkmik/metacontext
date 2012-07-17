@@ -1,4 +1,5 @@
 import ast
+import inspect
 import new
 import os
 import sys
@@ -34,9 +35,21 @@ class TranslatorImportHook(object):
         return m
 
     def parse_top_imports(self, tree):
-        from matchsyntax import match, case
+        keywords = {}
 
-        return {'match': match(), 'case': case()}
+        for node in ast.iter_child_nodes(tree):
+            if isinstance(node, ast.ImportFrom):
+                mod = __import__(node.module)
+                for alias in node.names:
+                    name = alias.name
+                    as_name = alias.asname or name
+
+                    keyword_cls = getattr(mod, name)
+                    if inspect.isclass(keyword_cls) and issubclass(keyword_cls, Keyword):
+                        keywords[as_name] = getattr(mod, name)()
+
+
+        return keywords
 
 
 class SyntaxTransformer(ast.NodeTransformer):

@@ -1,7 +1,7 @@
 #- LANGUAGE compile-time-context-manager -#
 
 import inspect
-from actor import match, case, _
+from actor import match, case, _; from actor import case as base
 
 def lineno():
     """Returns the current line number in our program."""
@@ -39,7 +39,7 @@ class MyActor(object):
     class Inner(object):
         def process(self, msg):
             with match(msg):
-                with case('test', _):
+                with base('test', _):
                     assert lineno() == 43
 
 
