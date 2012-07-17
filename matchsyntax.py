@@ -1,68 +1,36 @@
+import ast
 import sys
-import token
-import tokenize
 
 from syntaxtranslator import Translator, TranslatorImportHook
 
 
 class MatchStatementTranslator(Translator):
-    def translate(self, readline):
-        tokens = tokenize.generate_tokens(readline)
+    def translate(self, tree):
+        return MatchTransformer().visit(tree)
 
-        ANY = object()
 
-        def until(typ, name):
-            for t, n, _, _, _ in tokens:
-                if t == typ and (name == ANY or n == name):
-                    return n
+class MatchTransformer(ast.NodeTransformer):
+    def if_template(self):
+        return ast.parse("if True: pass").body[0]
 
-        buffer = []
+    def visit_With(self, node):
+        node = self.generic_visit(node)
 
-        is_bol = True
-        in_with = False
-        for typ, name, start_pos, _, _ in tokens:
-            print "GOT: %s(%s) (in with: %s)" % (token.tok_name.get(typ, typ), repr(name), in_with)
+        if node.context_expr.func.id == 'match':
+            res = ast.copy_location(self.if_template(), node)
+            res.body = [self.visit(i) for i in node.body]
+            return res
+        elif node.context_expr.func.id == 'case':
+            res = ast.copy_location(self.if_template(), node)
 
-            if in_with and typ == tokenize.NAME and name == 'match':
-                yield tokenize.NAME, 'if'
-                yield tokenize.STRING, 'True'
-                yield tokenize.OP, ':'
+            trace = ast.copy_location(ast.Print(None, [ast.Str("fun trace line: %s" % node.lineno)], True), node)
+            ast.fix_missing_locations(trace)
 
-                until(tokenize.OP, ':')
+            res.body = [trace] + [self.visit(i) for i in node.body]
+            return res
+        else:
+            return node
 
-                buffer = []
-            elif in_with and typ == tokenize.NAME and name == 'case':
-                yield tokenize.NAME, 'if'
-                yield tokenize.STRING, 'True'
-                yield tokenize.OP, ':'
-
-                # doesn't handle "case ....: statement1; statement2;"
-                indent = until(tokenize.INDENT, ANY)
-
-                yield tokenize.NL, '\n'
-                yield tokenize.INDENT, indent
-
-                # shift user's statement positions by 1
-                # the user's statement is 2 lines ahead of the case
-                # because we inserted 1 trace statement
-                self.line_pos_offsets[start_pos[0] + 2] = 1
-
-                yield tokenize.NAME, 'print'
-                yield tokenize.String, '"fun trace line: %s"' % (start_pos[0]+1)
-                yield tokenize.NL, '\n'
-
-                buffer = []
-            else:
-                if is_bol and typ == tokenize.NAME and name == 'with':
-                    buffer.append((typ, name))
-                else:
-                    for t, n in buffer:
-                        yield t, n
-                    buffer = []
-                    yield typ, name
-
-            in_with = is_bol and typ == tokenize.NAME and name == 'with'
-            is_bol = typ == tokenize.NEWLINE or typ == tokenize.INDENT or typ == tokenize.DEDENT
 
 def register_match_importer():
     sys.meta_path.insert(0, TranslatorImportHook(MatchStatementTranslator(), 'match-statement'))
