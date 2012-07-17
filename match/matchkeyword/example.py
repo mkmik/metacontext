@@ -30,9 +30,8 @@ def test(msg):
                 print "A", a
             print "LINE NR SHOULD BE 31", lineno()
             assert lineno() == 32
-        with case ('other', _):
             print "OTHER", msg
-            assert lineno() == 35
+            assert lineno() == 34
             raise TestException("let's look at the stack trace")
 
 
@@ -40,15 +39,17 @@ class MyActor(object):
     class Inner(object):
         def process(self, msg):
             with match(msg):
-                with base('test', _):
+                with base('other', _):
                     assert lineno() == 44
+                with case('test', _):
+                    print "SECOND CASE"
 
 
     def run(self):
         msg = ('test', 1)
         with match(msg):
             with case ('test', _) as a:
-                assert lineno() == 51
+                assert lineno() == 52
                 print "wow"
 
         self.Inner().process(msg)
