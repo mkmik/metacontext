@@ -34,7 +34,12 @@ class TranslatorImportHook(object):
         with open(self.src_name(fullname)) as src:
             tree = ast.parse(src.read(), self.src_name(fullname))
             known_keywords = self.parse_top_imports(tree)
-            translated = SyntaxTransformer(known_keywords).visit(tree)
+
+            # transform only if we know about at least a keyword
+            if known_keywords:
+                translated = SyntaxTransformer(known_keywords).visit(tree)
+            else:
+                translated = tree
             compiled = compile(translated, self.src_name(fullname), 'exec', 0, True)
             exec compiled in m.__dict__
 
