@@ -1,4 +1,4 @@
-#- LANGUAGE match-statement -#
+#- LANGUAGE compile-time-context-manager -#
 
 import inspect
 from actor import match, case, _

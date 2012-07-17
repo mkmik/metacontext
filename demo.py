@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import matchsyntax
-matchsyntax.register_match_importer()
+import syntaxtranslator
+syntaxtranslator.register_translator_importer()
 
 import dis
 import traceback
