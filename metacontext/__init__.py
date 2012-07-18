@@ -121,10 +121,6 @@ class SyntaxTransformer(ast.NodeTransformer):
                 ast.fix_missing_locations(res)
                 return res
             else:
-                #translated[0] = ast.copy_location(translated[0], node)
-                #for i in translated:
-                #    ast.fix_missing_locations(i)
-
                 return [ast.copy_location(i, node) for i in translated]
         else:
             return node
