@@ -15,6 +15,8 @@ class MatchKeyword(Keyword):
     def translate(self, body, args, var):
         die = ast.Raise(ast.Call(ast.Attribute(ast.Name('match', ast.Load()), 'NoMatch', ast.Load()), [], [], None, None), None, None)
 
+        die.lineno = body[-1].lineno + 1
+
         body.append(die)
         return ast.While(ast.Name('True', ast.Load()), body, [])
 
@@ -35,7 +37,8 @@ class CaseKeyword(Keyword):
                         ast.Call(ast.Name('match', ast.Load()),
                                  match_args, [], None, None))
 
-        #body.append(ast.Break())
+        brk = ast.copy_location(ast.Break(), body[-1])
+        body.append(brk)
         check = ast.If(ast.Name('__is_match', ast.Load()), body, [])
 
         case_body = [trace, mm, check]
