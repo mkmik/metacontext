@@ -82,6 +82,7 @@ class Unparser:
     def _Import(self, t):
         self.fill("import ")
         interleave(lambda: self.write(", "), self.dispatch, t.names)
+        self.write(" # line: %s" % t.lineno)
 
     def _ImportFrom(self, t):
         # A from __future__ import may affect unparsing, so record it.
@@ -101,6 +102,7 @@ class Unparser:
             self.dispatch(target)
             self.write(" = ")
         self.dispatch(t.value)
+        self.write(" # line: %s" % t.lineno)
 
     def _AugAssign(self, t):
         self.fill()
@@ -113,19 +115,24 @@ class Unparser:
         if t.value:
             self.write(" ")
             self.dispatch(t.value)
+        self.write(" # line: %s" % t.lineno)
 
     def _Pass(self, t):
         self.fill("pass")
+        self.write(" # line: %s" % t.lineno)
 
     def _Break(self, t):
         self.fill("break")
+        self.write(" # line: %s" % t.lineno)
 
     def _Continue(self, t):
         self.fill("continue")
+        self.write(" # line: %s" % t.lineno)
 
     def _Delete(self, t):
         self.fill("del ")
         interleave(lambda: self.write(", "), self.dispatch, t.targets)
+        self.write(" # line: %s" % t.lineno)
 
     def _Assert(self, t):
         self.fill("assert ")
@@ -133,6 +140,7 @@ class Unparser:
         if t.msg:
             self.write(", ")
             self.dispatch(t.msg)
+        self.write(" # line: %s" % t.lineno)
 
     def _Exec(self, t):
         self.fill("exec ")
@@ -157,10 +165,12 @@ class Unparser:
             self.dispatch(e)
         if not t.nl:
             self.write(",")
+        self.write(" # line: %s" % t.lineno)
 
     def _Global(self, t):
         self.fill("global ")
         interleave(lambda: self.write(", "), self.write, t.names)
+        self.write(" # line: %s" % t.lineno)
 
     def _Yield(self, t):
         self.write("(")
@@ -180,10 +190,12 @@ class Unparser:
         if t.tback:
             self.write(", ")
             self.dispatch(t.tback)
+        self.write(" # line: %s" % t.lineno)
 
     def _TryExcept(self, t):
         self.fill("try")
         self.enter()
+        self.write(" # line: %s" % t.lineno)
         self.dispatch(t.body)
         self.leave()
 
@@ -235,6 +247,7 @@ class Unparser:
                 self.write(", ")
             self.write(")")
         self.enter()
+        self.write(" # line: %s" % t.lineno)
         self.dispatch(t.body)
         self.leave()
 
@@ -246,6 +259,7 @@ class Unparser:
         self.fill("def "+t.name + "(")
         self.dispatch(t.args)
         self.write(")")
+        self.write(" # line: %s" % t.lineno)
         self.enter()
         self.dispatch(t.body)
         self.leave()
@@ -255,6 +269,7 @@ class Unparser:
         self.dispatch(t.target)
         self.write(" in ")
         self.dispatch(t.iter)
+        self.write(" # line: %s" % t.lineno)
         self.enter()
         self.dispatch(t.body)
         self.leave()
@@ -267,6 +282,7 @@ class Unparser:
     def _If(self, t):
         self.fill("if ")
         self.dispatch(t.test)
+        self.write(" # line: %s" % t.lineno)
         self.enter()
         self.dispatch(t.body)
         self.leave()
@@ -289,6 +305,7 @@ class Unparser:
     def _While(self, t):
         self.fill("while ")
         self.dispatch(t.test)
+        self.write(" # line: %s" % t.lineno)
         self.enter()
         self.dispatch(t.body)
         self.leave()
@@ -305,6 +322,7 @@ class Unparser:
             self.write(" as ")
             self.dispatch(t.optional_vars)
         self.enter()
+        self.write(" # line: %s" % t.lineno)
         self.dispatch(t.body)
         self.leave()
 
@@ -497,6 +515,7 @@ class Unparser:
             self.write("**")
             self.dispatch(t.kwargs)
         self.write(")")
+        self.write(" /* line: %s */ " % t.lineno)
 
     def _Subscript(self, t):
         self.dispatch(t.value)
