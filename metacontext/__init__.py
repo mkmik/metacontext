@@ -108,6 +108,11 @@ class SyntaxTransformer(ast.NodeTransformer):
     def __init__(self, keywords):
         self.keywords = keywords
         self.stack = []
+        self.gensym_counter = 0
+
+    def gensym(self):
+        self.gensym_counter += 1
+        return "__g_%s" % self.gensym_counter
 
     def visit_With(self, node):
 

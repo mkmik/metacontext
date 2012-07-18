@@ -17,6 +17,8 @@ class MatchKeyword(Keyword):
 
     def translate(self, translator, body, args, var):
         translator.stack[-1]['match_msg_Name'] = args.args[0]
+        translator.stack[-1]['case_is_match_sym'] = translator.gensym()
+        translator.stack[-1]['case_x_sym'] = translator.gensym()
 
         die = ast.Raise(ast.Call(ast.Attribute(ast.Name('match', ast.Load()), 'NoMatch', ast.Load()), [], [], None, None), None, None)
 
@@ -40,15 +42,18 @@ class CaseKeyword(Keyword):
         except (IndexError, KeyError):
             raise SyntaxError("with case() should be nested in a with match() construct")
 
+        is_match_sym = translator.stack[-2]['case_is_match_sym']
+        x_sym = translator.stack[-2]['case_x_sym']
+
         store = ast.Store()
-        mm = ast.Assign([ast.Tuple([ast.Name('__is_match', store),
-                                    ast.Name('__x', store)], store)],
+        mm = ast.Assign([ast.Tuple([ast.Name(is_match_sym, store),
+                                    ast.Name(x_sym, store)], store)],
                         ast.Call(ast.Name('match', ast.Load()),
                                  [match_msg_node] + args.args, [], None, None))
 
         brk = ast.copy_location(ast.Break(), body[-1])
         body.append(brk)
-        check = ast.If(ast.Name('__is_match', ast.Load()), body, [])
+        check = ast.If(ast.Name(is_match_sym, ast.Load()), body, [])
 
         case_body = [trace, mm, check]
 
