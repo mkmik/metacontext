@@ -15,7 +15,7 @@ class TestException(Exception):
 def other_test(msg):
     def closure():
         with match(msg):
-           with case ('test', _, _) as (a, b):
+           with case (('test', _, _)) as (a, b):
               print "CLOSURE LINE NR SHOULD BE 19", lineno()
               assert lineno() == 20
         pass
@@ -24,7 +24,7 @@ def other_test(msg):
 
 def test(msg):
     with match(msg):
-        with case ('test', _) as a:
+        with case (('test', _)) as a:
             print "TEST", msg
             if False:
                 print "A", a
@@ -39,24 +39,24 @@ class MyActor(object):
     class Inner(object):
         def process(self, msg):
             with match(msg):
-                with base('test', _):
+                with base(('test', _)):
                     raise TestException("Exception at line 43")
-                with case('other', _):
+                with case(('other', _)):
                     raise TestException("Exception at line 45")
 
 
     def run(self):
         msg = ('test', 1)
         with match(msg):
-            with case ('test', _) as a:
+            with case (('test', _)) as a:
                 assert lineno() == 52
                 print "wow"
 
         self.Inner().process(msg)
 
-def second_block(msg):
-    with match(msg):
-        with case('other', _):
+def second_block(mesg):
+    with match(mesg):
+        with case(('other', _)):
             raise TestException("Exception at line 60")
-        with case('test', _):
+        with case(('test', _)):
             raise TestException("Exception at line 62")

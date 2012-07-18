@@ -107,23 +107,31 @@ class TranslatorLoader(object):
 class SyntaxTransformer(ast.NodeTransformer):
     def __init__(self, keywords):
         self.keywords = keywords
+        self.stack = []
 
     def visit_With(self, node):
 
-        node = self.generic_visit(node)
+        try:
+            self.stack.append({})
 
-        if node.context_expr.func.id in self.keywords:
-            keyword = self.keywords[node.context_expr.func.id]
+            if node.context_expr.func.id in self.keywords:
 
-            translated = keyword.translate(node.body, node.context_expr, node.optional_vars)
-            if isinstance(translated, ast.AST):
-                res = ast.copy_location(translated, node)
-                ast.fix_missing_locations(res)
-                return res
+                keyword = self.keywords[node.context_expr.func.id]
+                translated = keyword.translate(self, node.body, node.context_expr, node.optional_vars)
+
+                if isinstance(translated, ast.AST):
+                    translated = self.generic_visit(translated)
+
+                    res = ast.copy_location(translated, node)
+                    ast.fix_missing_locations(res)
+                    return res
+                else:
+                    return [ast.copy_location(self.generic_visit(i), node) for i in translated]
             else:
-                return [ast.copy_location(i, node) for i in translated]
-        else:
-            return node
+                return self.generic_visit(node)
+
+        finally:
+            self.stack.pop()
 
 
 class Keyword(object):

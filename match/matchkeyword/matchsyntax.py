@@ -9,10 +9,15 @@ class NoMatch(Exception):
 class MatchKeyword(Keyword):
     NoMatch = NoMatch
 
-    def __call__(self, pattern):
-        return (pattern[0] == 'test', None)
+    def __call__(self, msg, pattern):
+        if msg[0] == pattern[0]:
+            return (True, msg)
+        else:
+            return (False, None)
 
-    def translate(self, body, args, var):
+    def translate(self, translator, body, args, var):
+        translator.stack[-1]['match_msg_Name'] = args.args[0]
+
         die = ast.Raise(ast.Call(ast.Attribute(ast.Name('match', ast.Load()), 'NoMatch', ast.Load()), [], [], None, None), None, None)
 
         die.lineno = body[-1].lineno + 1
@@ -22,20 +27,19 @@ class MatchKeyword(Keyword):
 
 
 class CaseKeyword(Keyword):
-    def translate(self, body, args, var):
+    def translate(self, translator, body, args, var):
         trace = ast.Print(None, [ast.Str("fun trace line: %s" % args.lineno)], True)
 
-        if len(args.args) > 1:
-            # implicit tuple
-            match_args = [ast.Tuple(args.args, ast.Load())]
-        else:
-            match_args = args.args
+        try:
+            match_msg_node = translator.stack[-2]['match_msg_Name']
+        except (IndexError, KeyError):
+            raise SyntaxError("with case() should be nested in a with match() construct")
 
         store = ast.Store()
         mm = ast.Assign([ast.Tuple([ast.Name('__is_match', store),
                                     ast.Name('__x', store)], store)],
                         ast.Call(ast.Name('match', ast.Load()),
-                                 match_args, [], None, None))
+                                 [match_msg_node] + args.args, [], None, None))
 
         brk = ast.copy_location(ast.Break(), body[-1])
         body.append(brk)
