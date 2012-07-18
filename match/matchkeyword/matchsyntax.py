@@ -43,7 +43,7 @@ class CaseKeyword(Keyword):
 
         case_body = [trace, mm, check]
 
-        return ast.If(ast.Name('True', ast.Load()), case_body, [])
+        return case_body
 
 
 match = MatchKeyword()
