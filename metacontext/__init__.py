@@ -74,9 +74,6 @@ class TranslatorLoader(object):
                     print "-----"
                     Unparser(translated)
                     print "-----"
-                    for i in ast.walk(translated):
-                        if hasattr(i, 'lineno'):
-                            print i.lineno
             else:
                 translated = tree
             compiled = compile(translated, self.src_name(fullname), 'exec', 0, True)
