@@ -66,6 +66,25 @@ class CaseKeyword(Keyword):
         return case_body
 
 
+    def template(self, body, args, var):
+        import quote, unquote
+
+        if len(args.args) > 1:
+            # implicit tuple
+            match_args = [ast.Tuple(args.args, ast.Load())]
+        else:
+            match_args = args.args
+
+        with quote() as q:
+            print unquote("fun trace line: %s" % args.lineno)
+
+            __is_match, __x = match(unquote(match_args))
+            if __is_match:
+                unquote(body)
+                #break
+
+        return q
+
 match = MatchKeyword()
 case = CaseKeyword()
 
