@@ -20,6 +20,11 @@ class MatchKeyword(Keyword):
 
         die = ast.Raise(ast.Call(ast.Attribute(ast.Name('match', ast.Load()), 'NoMatch', ast.Load()), [], [], None, None), None, None)
 
+        # This kind of hacks are unfortunately necessary
+        # because otherwise the line number table will contain negative deltas which are
+        # encoded as unsigned bytes in co_lntab and will cause to skip forward the
+        # line numbering by ~200 lines
+        # TODO: create a generic line fixup routine which works better than ast.fix_missing_locations
         die.lineno = body[-1].lineno + 1
 
         body.append(die)
