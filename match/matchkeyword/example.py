@@ -39,10 +39,10 @@ class MyActor(object):
     class Inner(object):
         def process(self, msg):
             with match(msg):
-                with base('other', _):
-                    assert lineno() == 44
-                with case('test', _):
-                    print "SECOND CASE"
+                with base('test', _):
+                    raise TestException("Exception at line 43")
+                with case('other', _):
+                    raise TestException("Exception at line 45")
 
 
     def run(self):
@@ -54,3 +54,9 @@ class MyActor(object):
 
         self.Inner().process(msg)
 
+def second_block(msg):
+    with match(msg):
+        with case('other', _):
+            raise TestException("Exception at line 60")
+        with case('test', _):
+            raise TestException("Exception at line 62")

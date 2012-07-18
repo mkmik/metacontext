@@ -67,13 +67,16 @@ class TranslatorLoader(object):
             known_keywords = self.parse_top_imports(tree)
 
             # transform only if we know about at least a keyword
-            if known_keywords:
+            if True or known_keywords:
                 translated = SyntaxTransformer(known_keywords).visit(tree)
                 if self.DEBUG:
                     from metacontext.unparse import Unparser
                     print "-----"
                     Unparser(translated)
                     print "-----"
+                    for i in ast.walk(translated):
+                        if hasattr(i, 'lineno'):
+                            print i.lineno
             else:
                 translated = tree
             compiled = compile(translated, self.src_name(fullname), 'exec', 0, True)
@@ -111,9 +114,18 @@ class SyntaxTransformer(ast.NodeTransformer):
 
         if node.context_expr.func.id in self.keywords:
             keyword = self.keywords[node.context_expr.func.id]
-            res = ast.copy_location(keyword.translate(node.body, node.context_expr, node.optional_vars), node)
-            ast.fix_missing_locations(res)
-            return res
+
+            translated = keyword.translate(node.body, node.context_expr, node.optional_vars)
+            if isinstance(translated, ast.AST):
+                res = ast.copy_location(translated, node)
+                ast.fix_missing_locations(res)
+                return res
+            else:
+                #translated[0] = ast.copy_location(translated[0], node)
+                #for i in translated:
+                #    ast.fix_missing_locations(i)
+
+                return [ast.copy_location(i, node) for i in translated]
         else:
             return node
 

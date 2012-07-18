@@ -35,7 +35,7 @@ class CaseKeyword(Keyword):
                         ast.Call(ast.Name('match', ast.Load()),
                                  match_args, [], None, None))
 
-        body.append(ast.Break())
+        #body.append(ast.Break())
         check = ast.If(ast.Name('__is_match', ast.Load()), body, [])
 
         case_body = [trace, mm, check]
