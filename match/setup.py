@@ -11,5 +11,5 @@ setup(
     author_email = "mmikulicic@gmail.com",
     packages = find_packages(),
     entry_points = {'console_scripts': ['demo = matchkeyword.demo:run']},
-    install_requires = ['metacontext']
+    install_requires = ['metacontext', 'py_pattern_matching']
 )

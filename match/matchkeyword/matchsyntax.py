@@ -1,6 +1,7 @@
 import ast
 
 from metacontext import Keyword
+import patternmatching
 
 class NoMatch(Exception):
     """should be in pattern match library"""
@@ -10,10 +11,8 @@ class MatchKeyword(Keyword):
     NoMatch = NoMatch
 
     def __call__(self, msg, pattern):
-        if msg[0] == pattern[0]:
-            return (True, msg)
-        else:
-            return (False, None)
+        res = patternmatching.match(pattern, msg)
+        return (res[0], res[1:])
 
     def translate(self, translator, body, args, var):
         translator.stack[-1]['match_msg_Name'] = args.args[0]
