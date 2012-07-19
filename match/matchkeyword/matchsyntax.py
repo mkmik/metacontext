@@ -35,8 +35,6 @@ class MatchKeyword(Keyword):
 
 class CaseKeyword(Keyword):
     def translate(self, translator, body, args, var):
-        trace = ast.Print(None, [ast.Str("fun trace line: %s" % args.lineno)], True)
-
         try:
             match_msg_node = translator.stack[-2]['match_msg_Name']
         except (IndexError, KeyError):
@@ -55,7 +53,7 @@ class CaseKeyword(Keyword):
         body.append(brk)
         check = ast.If(ast.Name(is_match_sym, ast.Load()), body, [])
 
-        case_body = [trace, mm, check]
+        case_body = [mm, check]
 
         return case_body
 
