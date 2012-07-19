@@ -137,7 +137,10 @@ class SyntaxTransformer(ast.NodeTransformer):
 
 
 class Keyword(object):
-    pass
+    templates = {}
+
+    def expand(self, q, loc):
+        print "EXPANDING", q, loc
 
 
 def register_importer_hook():

@@ -1,11 +1,13 @@
+#- LANGUAGE compile-time-context-manager -#
+
 import ast
 
 from metacontext import Keyword
+from metacontext.template import quote, unquote
 import patternmatching
 
 class NoMatch(Exception):
     """should be in pattern match library"""
-
 
 class MatchKeyword(Keyword):
     NoMatch = NoMatch
@@ -66,22 +68,18 @@ class CaseKeyword(Keyword):
         return case_body
 
 
-    def template(self, body, args, var):
-        import quote, unquote
-
-        if len(args.args) > 1:
-            # implicit tuple
-            match_args = [ast.Tuple(args.args, ast.Load())]
-        else:
-            match_args = args.args
+    def template(self, translator, body, args, var):
+        try:
+            #match_msg_node = translator.stack[-2]['match_msg_Name']
+            match_msg_node = ast.Name("DUMMY", ast.Load())
+        except (IndexError, KeyError):
+            raise SyntaxError("with case() should be nested in a with match() construct")
 
         with quote() as q:
-            print unquote("fun trace line: %s" % args.lineno)
-
-            __is_match, __x = match(unquote(match_args))
+            __is_match, __x = match(unquote([match_msg_node] + args.args))
             if __is_match:
                 unquote(body)
-                #break
+                break
 
         return q
 

@@ -10,6 +10,6 @@ setup(
     author = "Marko Mikulicic",
     author_email = "mmikulicic@gmail.com",
     packages = find_packages(),
-    entry_points = {'console_scripts': ['demo = matchkeyword.demo:run']},
+    entry_points = {'console_scripts': ['demo = matchkeyword.demo:run', 'demo_template = matchkeyword.demo_template:run']},
     install_requires = ['metacontext', 'py_pattern_matching']
 )
