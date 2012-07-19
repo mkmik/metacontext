@@ -16,7 +16,9 @@ def run():
 
         from metacontext.unparse import Unparser
 
-        template_ast = matchsyntax.case.template(None, None, None, None)
+        import ast
+        body = ast.parse("print 'hello'").body
+        template_ast = matchsyntax.case.template(None, body, None, None)
         print template_ast
         Unparser(template_ast)
 

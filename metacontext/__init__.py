@@ -140,7 +140,18 @@ class Keyword(object):
     templates = {}
 
     def expand(self, q, loc):
-        print "EXPANDING", q, loc
+        [TemplateExpander(loc).visit(i) for i in q]
+
+
+class TemplateExpander(ast.NodeTransformer):
+    def __init__(self, loc):
+        self.loc = loc
+
+    def visit_Call(self, node):
+        if isinstance(node.func, ast.Name) and (node.func.id == 'unquote_stmts' or node.func.id == 'unquote'):
+            compiled = compile(ast.fix_missing_locations(ast.Expression(node.args[0])), '', 'eval', 0, True)
+            return eval(compiled, {}, self.loc)
+        return node
 
 
 def register_importer_hook():

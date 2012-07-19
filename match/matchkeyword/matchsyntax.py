@@ -3,7 +3,7 @@
 import ast
 
 from metacontext import Keyword
-from metacontext.template import quote, unquote
+from metacontext.template import quote, unquote, unquote_stmts
 import patternmatching
 
 class NoMatch(Exception):
@@ -78,7 +78,7 @@ class CaseKeyword(Keyword):
         with quote() as q:
             __is_match, __x = match(unquote([match_msg_node] + args.args))
             if __is_match:
-                unquote(body)
+                unquote_stmts(body)
                 break
 
         return q

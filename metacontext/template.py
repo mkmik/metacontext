@@ -22,3 +22,4 @@ class QuoteKeyword(Keyword):
 
 quote = QuoteKeyword()
 unquote = object()
+unquote_stmts = object()
