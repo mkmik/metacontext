@@ -43,8 +43,17 @@ class CaseKeyword(Keyword):
         x_sym = translator.stack[-2]['case_x_sym']
 
         store = ast.Store()
+
+        if var:
+            if isinstance(var, ast.Tuple):
+                bound_vars = var
+            else:
+                bound_vars = ast.Tuple([var], store)
+        else:
+            bound_vars = ast.Name(x_sym, store)
+
         mm = ast.Assign([ast.Tuple([ast.Name(is_match_sym, store),
-                                    ast.Name(x_sym, store)], store)],
+                                    bound_vars], store)],
                         ast.Call(ast.Name('match', ast.Load()),
                                  [match_msg_node] + args.args, [], None, None))
 

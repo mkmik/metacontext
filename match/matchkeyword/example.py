@@ -18,6 +18,7 @@ def other_test(msg):
            with case (('test', _, _)) as (a, b):
               print "CLOSURE LINE NR SHOULD BE 19", lineno()
               assert lineno() == 20
+              assert (a, b) == (1, 2)
         pass
     closure()
 
@@ -29,9 +30,9 @@ def test(msg):
             if False:
                 print "A", a
             print "LINE NR SHOULD BE 31", lineno()
-            assert lineno() == 32
+            assert lineno() == 33
             print "OTHER", msg
-            assert lineno() == 34
+            assert lineno() == 35
             raise TestException("let's look at the stack trace")
 
 
@@ -49,8 +50,8 @@ class MyActor(object):
         msg = ('test', 1)
         with match(msg):
             with case (('test', _)) as a:
-                assert lineno() == 52
-                print "wow"
+                assert lineno() == 53
+                print "wow", a
 
         self.Inner().process(msg)
 
@@ -58,5 +59,6 @@ def second_block(mesg):
     with match(mesg):
         with case(('other', _)):
             raise TestException("Exception at line 60")
-        with case(('test', _)):
-            raise TestException("Exception at line 62")
+        with case(('test', _)) as a:
+            assert a == 1
+            raise TestException("Exception at line 63")
