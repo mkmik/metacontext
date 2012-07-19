@@ -17,7 +17,10 @@ class QuoteKeyword(Keyword):
         ast.fix_missing_locations(expand)
         ast.fix_missing_locations(locals_call)
 
-        return [mm, ast.Expr(expand)]
+        expand_expr = ast.copy_location(ast.Expr(expand), body[-1])
+        ast.fix_missing_locations(expand_expr)
+
+        return [mm, expand_expr]
 
 
 quote = QuoteKeyword()

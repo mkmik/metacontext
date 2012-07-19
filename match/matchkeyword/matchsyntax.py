@@ -35,7 +35,7 @@ class MatchKeyword(Keyword):
 
 
 class CaseKeyword(Keyword):
-    def translate(self, translator, body, args, var):
+    def xxxtranslate(self, translator, body, args, var):
         try:
             match_msg_node = translator.stack[-2]['match_msg_Name']
         except (IndexError, KeyError):
@@ -70,8 +70,7 @@ class CaseKeyword(Keyword):
 
     def template(self, translator, body, args, var):
         try:
-            #match_msg_node = translator.stack[-2]['match_msg_Name']
-            match_msg_node = ast.Name("DUMMY", ast.Load())
+            match_msg_node = translator.stack[-2]['match_msg_Name']
         except (IndexError, KeyError):
             raise SyntaxError("with case() should be nested in a with match() construct")
 

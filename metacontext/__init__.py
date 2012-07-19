@@ -76,6 +76,7 @@ class TranslatorLoader(object):
                     print "-----"
             else:
                 translated = tree
+
             compiled = compile(translated, self.src_name(fullname), 'exec', 0, True)
             exec compiled in m.__dict__
 
@@ -141,17 +142,40 @@ class Keyword(object):
 
     def expand(self, q, loc):
         [TemplateExpander(loc).visit(i) for i in q]
+        for i in q:
+            ast.fix_missing_locations(i)
+
+    def translate(self, translator, body, args, var):
+        return self.template(translator, body, args, var)
 
 
 class TemplateExpander(ast.NodeTransformer):
     def __init__(self, loc):
         self.loc = loc
 
-    def visit_Call(self, node):
-        if isinstance(node.func, ast.Name) and (node.func.id == 'unquote_stmts' or node.func.id == 'unquote'):
-            compiled = compile(ast.fix_missing_locations(ast.Expression(node.args[0])), '', 'eval', 0, True)
-            return eval(compiled, {}, self.loc)
+    def visit_Expr(self, node):
+        nn = node.value
+        if isinstance(nn.func, ast.Name) and (nn.func.id == 'unquote_stmts'):
+            evaluated = self.evaluate(nn.args[0])
+            return evaluated
+
+        self.generic_visit(node)
         return node
+
+    def visit_Call(self, node):
+        if len(node.args) == 1 and isinstance(node.args[0], ast.Call) and isinstance(node.args[0].func, ast.Name) and node.args[0].func.id == 'unquote':
+            nn = node.args[0]
+            if isinstance(nn.func, ast.Name) and (nn.func.id == 'unquote'):
+                evaluated = self.evaluate(nn.args[0])
+                node.args = evaluated
+                return node
+
+        self.generic_visit(node)
+        return node
+
+    def evaluate(self, node):
+        compiled = compile(ast.fix_missing_locations(ast.Expression(node)), '<string>', 'eval', 0, True)
+        return eval(compiled, {}, self.loc)
 
 
 def register_importer_hook():
