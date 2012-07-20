@@ -160,6 +160,8 @@ class Keyword(object):
 
         for i in q:
             ast.fix_missing_locations(i)
+            LineFixer().visit(i)
+
 
     def translate(self, translator, body, args, var):
         return self.template(translator, body, args, var)
@@ -204,6 +206,17 @@ class TemplateExpander(ast.NodeTransformer):
         compiled = compile(ast.fix_missing_locations(ast.Expression(node)), '<string>', 'eval', 0, True)
         return eval(compiled, {}, self.loc)
 
+
+class LineFixer(ast.NodeVisitor):
+    def visit(self, node):
+        if ast.stmt:
+            if hasattr(node, 'body'):
+                last_line = 1
+                for i in node.body:
+                    if i.lineno == 1:
+                        print "NODE LINENO 1", i
+                        i.lineno = last_line + 1
+                    last_line = i.lineno
 
 def register_importer_hook():
     sys.meta_path.insert(0, TranslatorImportHook('compile-time-context-manager'))
