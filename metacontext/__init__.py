@@ -147,7 +147,16 @@ class Keyword(object):
                 if hasattr(i, 'lineno'):
                     del i.lineno
 
-        [TemplateExpander(loc).visit(i) for i in q]
+        from metacontext.template import UnquoteBindKeyword
+        unquote_bind = UnquoteBindKeyword()
+        unquote_keywords = {'unquote_bind': unquote_bind}
+
+        qs = [SyntaxTransformer(unquote_keywords).visit(i) for i in q]
+        qs = [s for i in qs for s in i] # flatten
+        del q[0:len(q)]
+        q.extend(qs)
+
+        [TemplateExpander(loc, unquote_bind.bound_vars).visit(i) for i in q]
 
         for i in q:
             ast.fix_missing_locations(i)
@@ -161,8 +170,9 @@ class Keyword(object):
 
 
 class TemplateExpander(ast.NodeTransformer):
-    def __init__(self, loc):
+    def __init__(self, loc, bound_vars):
         self.loc = loc
+        self.bound_vars = bound_vars
 
     def visit_Expr(self, node):
         nn = node.value
@@ -182,6 +192,12 @@ class TemplateExpander(ast.NodeTransformer):
                 return node
 
         self.generic_visit(node)
+        return node
+
+    def visit_Name(self, node):
+        """Replace bound vars with AST subtrees registered by quote_bind"""
+        if node.id in self.bound_vars:
+            return self.evaluate(self.bound_vars[node.id])
         return node
 
     def evaluate(self, node):

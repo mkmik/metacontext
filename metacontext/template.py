@@ -6,6 +6,7 @@ class QuoteKeyword(Keyword):
 
     def translate(self, translator, body, args, var):
         ast_sym = translator.gensym()
+
         Keyword.templates[ast_sym] = body
         mm = ast.Assign([var], ast.parse('Keyword.get_template("%s")' % ast_sym, mode='eval').body)
     
@@ -23,6 +24,17 @@ class QuoteKeyword(Keyword):
         return [mm, expand_expr]
 
 
+class UnquoteBindKeyword(Keyword):
+    def __init__(self):
+        self.bound_vars = {}
+
+    def translate(self, translator, body, args, var):
+        self.bound_vars[var.id] = args.args[0]
+        return body
+
+
 quote = QuoteKeyword()
+unquote_bind = UnquoteBindKeyword()
+
 unquote = object()
 unquote_stmts = object()

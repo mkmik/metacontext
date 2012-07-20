@@ -3,7 +3,7 @@
 import ast
 
 from metacontext import Keyword
-from metacontext.template import quote, unquote, unquote_stmts
+from metacontext.template import quote, unquote, unquote_stmts, unquote_bind
 import patternmatching
 
 class NoMatch(Exception):
@@ -74,11 +74,21 @@ class CaseKeyword(Keyword):
         except (IndexError, KeyError):
             raise SyntaxError("with case() should be nested in a with match() construct")
 
+        if var:
+            if isinstance(var, ast.Tuple):
+                bound_vars = var
+            else:
+                bound_vars = ast.Tuple([var], ast.Store())
+        else:
+            bound_vars = ast.Name('__x__', ast.Store())
+
+
         with quote() as q:
-            __is_match, __x = match(unquote([match_msg_node] + args.args))
-            if __is_match:
-                unquote_stmts(body)
-                break
+            with unquote_bind(bound_vars) as __x:
+                __is_match, __x = match(unquote([match_msg_node] + args.args))
+                if __is_match:
+                    unquote_stmts(body)
+                    break
 
         return q
 
