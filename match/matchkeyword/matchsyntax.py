@@ -16,58 +16,19 @@ class MatchKeyword(Keyword):
         res = patternmatching.match(pattern, msg)
         return (res[0], res[1:])
 
-    def translate(self, translator, body, args, var):
+    def template(self, translator, body, args, var):
         translator.stack[-1]['match_msg_Name'] = args.args[0]
         translator.stack[-1]['case_is_match_sym'] = translator.gensym()
         translator.stack[-1]['case_x_sym'] = translator.gensym()
 
-        die = ast.Raise(ast.Call(ast.Attribute(ast.Name('match', ast.Load()), 'NoMatch', ast.Load()), [], [], None, None), None, None)
+        with quote() as q:
+            while True:
+                unquote_stmts(body)
+                raise match.NoMatch()
 
-        # This kind of hacks are unfortunately necessary
-        # because otherwise the line number table will contain negative deltas which are
-        # encoded as unsigned bytes in co_lntab and will cause to skip forward the
-        # line numbering by ~200 lines
-        # TODO: create a generic line fixup routine which works better than ast.fix_missing_locations
-        die.lineno = body[-1].lineno + 1
-
-        body.append(die)
-        return ast.While(ast.Name('True', ast.Load()), body, [])
-
+        return q
 
 class CaseKeyword(Keyword):
-    def xxxtranslate(self, translator, body, args, var):
-        try:
-            match_msg_node = translator.stack[-2]['match_msg_Name']
-        except (IndexError, KeyError):
-            raise SyntaxError("with case() should be nested in a with match() construct")
-
-        is_match_sym = translator.stack[-2]['case_is_match_sym']
-        x_sym = translator.stack[-2]['case_x_sym']
-
-        store = ast.Store()
-
-        if var:
-            if isinstance(var, ast.Tuple):
-                bound_vars = var
-            else:
-                bound_vars = ast.Tuple([var], store)
-        else:
-            bound_vars = ast.Name(x_sym, store)
-
-        mm = ast.Assign([ast.Tuple([ast.Name(is_match_sym, store),
-                                    bound_vars], store)],
-                        ast.Call(ast.Name('match', ast.Load()),
-                                 [match_msg_node] + args.args, [], None, None))
-
-        brk = ast.copy_location(ast.Break(), body[-1])
-        body.append(brk)
-        check = ast.If(ast.Name(is_match_sym, ast.Load()), body, [])
-
-        case_body = [mm, check]
-
-        return case_body
-
-
     def template(self, translator, body, args, var):
         try:
             match_msg_node = translator.stack[-2]['match_msg_Name']
@@ -81,7 +42,6 @@ class CaseKeyword(Keyword):
                 bound_vars = ast.Tuple([var], ast.Store())
         else:
             bound_vars = ast.Name('__x__', ast.Store())
-
 
         with quote() as q:
             with unquote_bind(bound_vars) as __x:
