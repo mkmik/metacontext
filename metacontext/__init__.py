@@ -152,9 +152,12 @@ class Keyword(object):
         unquote_keywords = {'unquote_bind': unquote_bind}
 
         qs = [SyntaxTransformer(unquote_keywords).visit(i) for i in q]
-        qs = [s for i in qs for s in i] # flatten
         del q[0:len(q)]
-        q.extend(qs)
+        for i in qs:
+            if isinstance(i, list):
+                q.extend(i)
+            else:
+                q.append(i)
 
         [TemplateExpander(loc, unquote_bind.bound_vars).visit(i) for i in q]
 
