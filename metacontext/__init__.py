@@ -142,7 +142,13 @@ class Keyword(object):
     templates = {}
 
     def expand(self, q, loc):
+        for s in q:
+            for i in ast.walk(s):
+                if hasattr(i, 'lineno'):
+                    del i.lineno
+
         [TemplateExpander(loc).visit(i) for i in q]
+
         for i in q:
             ast.fix_missing_locations(i)
 
