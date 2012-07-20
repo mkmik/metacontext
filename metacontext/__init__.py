@@ -1,4 +1,5 @@
 import ast
+import copy
 import inspect
 import importlib
 import new
@@ -147,6 +148,10 @@ class Keyword(object):
 
     def translate(self, translator, body, args, var):
         return self.template(translator, body, args, var)
+
+    @classmethod
+    def get_template(cls, name):
+        return copy.deepcopy(cls.templates[name])
 
 
 class TemplateExpander(ast.NodeTransformer):

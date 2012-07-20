@@ -7,7 +7,7 @@ class QuoteKeyword(Keyword):
     def translate(self, translator, body, args, var):
         ast_sym = translator.gensym()
         Keyword.templates[ast_sym] = body
-        mm = ast.Assign([var], ast.parse('Keyword.templates["%s"]' % ast_sym, mode='eval').body)
+        mm = ast.Assign([var], ast.parse('Keyword.get_template("%s")' % ast_sym, mode='eval').body)
     
         locals_call = ast.copy_location(ast.Call(ast.Name('locals', ast.Load()), [], [], None, None), body[-1])
 
