@@ -3,6 +3,7 @@
 import inspect
 from matchkeyword.actor import match, case, _; from matchkeyword.actor import case as base
 
+
 def lineno():
     """Returns the current line number in our program."""
     return inspect.currentframe().f_back.f_lineno
@@ -54,6 +55,7 @@ class MyActor(object):
                 print "wow", a
 
         self.Inner().process(msg)
+
 
 def second_block(mesg):
     with match(mesg):
