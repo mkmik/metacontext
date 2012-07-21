@@ -54,17 +54,3 @@ class CaseKeyword(Keyword):
 
 match = MatchKeyword()
 case = CaseKeyword()
-
-
-# while True:
-#     is_match, x = match(('some', ANY, 'pattern'))
-#     if is_match:
-#         <case-body>
-#         break
-
-#     is_match, a, b = match(('other', ANY, ANY'))
-#     if is_match:
-#         <case-body>
-#         break
-
-#     raise NoMatch()  # or smth
