@@ -31,7 +31,7 @@ otherwise.
 However this DSL has two problems:
 
   1. It's more verbose than necessary
-  2. It requires the case handlers to be contained in closures which cannot break out of loops, perform (non local) returns,
+  2. It requires the case mangers to be contained in closures which cannot break out of loops, perform (non local) returns,
      yield out of a generator etc.
 
 With MetaContext you can define the DSL as::
@@ -79,7 +79,7 @@ Which would have been written as::
     else:
       break
 
-How to create your own meta context handlers
+How to create your own meta context mangers
 --------------------------------------------
 
 Just create a `Keyword` subclass::
@@ -93,20 +93,20 @@ Just create a `Keyword` subclass::
         # you will get the `with` body in `body`
 
 
-How to use your meta context handler
+How to use your meta context manger
 ------------------------------------
 
-If you want to use your meta context handler, you first have to register
+If you want to use your meta context manger, you first have to register
 the MetaContext import hook::
 
   import metacontext
   metacontext.register_importer_hook()
 
 Then every source file that imports a symbol that resolves to a subclass of `Keyword` will
-be intercepted by the import hook and it's AST will be given to the meta context handlers
+be intercepted by the import hook and it's AST will be given to the meta context mangers
 which will usually transform the body of the `with` statement::
 
-  from yourpackage.retryhandler import retry
+  from yourpackage.retrymanger import retry
 
   # ...
 
@@ -120,7 +120,7 @@ Macro definition language
 Maniuplating the AST directly is a verbose and cumbersome process, especially since
 you have to care about preserving original line number information for debugging and stack trace purposes.
 
-MetaContext offers a macro definition DSL that you can use to quickly create your own meta context handlers:
+MetaContext offers a macro definition DSL that you can use to quickly create your own meta context mangers:
 
 The macro definition DSL itself is built using MetaContext constructs::
 
