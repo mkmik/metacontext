@@ -41,9 +41,9 @@ class MyActor(object):
         def process(self, msg):
             with match(msg):
                 with base(('test', _)):
-                    raise TestException("Exception at line 43")
+                    raise TestException("Exception at line 44")
                 with case(('other', _)):
-                    raise TestException("Exception at line 45")
+                    raise TestException("Exception at line 46")
 
 
     def run(self):
@@ -58,7 +58,7 @@ class MyActor(object):
 def second_block(mesg):
     with match(mesg):
         with case(('other', _)):
-            raise TestException("Exception at line 60")
+            raise TestException("Exception at line 61")
         with case(('test', _)) as a:
             assert a == 1
-            raise TestException("Exception at line 63")
+            raise TestException("Exception at line 64")

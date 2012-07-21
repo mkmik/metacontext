@@ -161,9 +161,10 @@ class Keyword(object):
 
         [TemplateExpander(loc, unquote_bind.bound_vars).visit(i) for i in q]
 
+        line_fixer = LineFixer()
         for i in q:
             ast.fix_missing_locations(i)
-            LineFixer().visit(i)
+            line_fixer.visit(i)
 
 
     def translate(self, translator, body, args, var):
@@ -178,6 +179,10 @@ class TemplateExpander(ast.NodeTransformer):
     def __init__(self, loc, bound_vars):
         self.loc = loc
         self.bound_vars = bound_vars
+
+    def visit(self, node):
+        node.template = True
+        return super(TemplateExpander, self).visit(node)
 
     def visit_Expr(self, node):
         nn = node.value
@@ -211,15 +216,20 @@ class TemplateExpander(ast.NodeTransformer):
 
 
 class LineFixer(ast.NodeVisitor):
+    def __init__(self):
+        self.last_line = None
+
     def visit(self, node):
-        if ast.stmt:
-            if hasattr(node, 'body'):
-                last_line = 1
-                for i in node.body:
-                    if i.lineno == 1:
-                        print "NODE LINENO 1", i
-                        i.lineno = last_line + 1
-                    last_line = i.lineno
+        if 'lineno' in node._attributes:
+            if self.last_line is None:
+                self.last_line = node.lineno - 1
+
+            if isinstance(node, ast.stmt) and hasattr(node, 'template'):
+                node.lineno = self.last_line + 1
+            self.last_line = node.lineno
+
+        self.generic_visit(node)
+
 
 def register_importer_hook():
     sys.meta_path.insert(0, TranslatorImportHook('compile-time-context-manager'))
