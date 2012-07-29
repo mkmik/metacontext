@@ -68,7 +68,7 @@ class TranslatorLoader(object):
             known_keywords = self.parse_top_imports(tree)
 
             # transform only if we know about at least a keyword
-            if True or known_keywords:
+            if known_keywords:
                 translated = SyntaxTransformer(known_keywords).visit(tree)
                 if self.DEBUG:
                     from metacontext.unparse import Unparser
