@@ -1,8 +1,17 @@
 #- LANGUAGE compile-time-context-manager -#
 
 from metacontext.tests.testcontext import timeit
+from metacontext.tests.utils import intercept_stdout
 
 def stest_it():
-    print "testIIIIIIIIIIIIIIING"
-    with timeit():
-        print "TIMED"
+    with timeit(log=True) as took:
+        print "Logged"
+
+    assert took >= 0
+
+    with intercept_stdout() as msg:
+        with timeit(log=False) as took:
+            print "Not logged"
+
+    assert took >= 0
+    assert msg.getvalue() == "Not logged\n"

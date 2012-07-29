@@ -180,6 +180,13 @@ class Keyword(object):
     def get_template(cls, name):
         return copy.deepcopy(cls.templates[name])
 
+    @staticmethod
+    def evaluate(node, loc=None):
+        if loc is None:
+            loc = {}
+        compiled = compile(ast.fix_missing_locations(ast.Expression(node)), '<string>', 'eval', 0, True)
+        return eval(compiled, {}, loc)
+
 
 class TemplateExpander(ast.NodeTransformer):
     def __init__(self, loc, bound_vars):
