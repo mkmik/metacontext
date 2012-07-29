@@ -151,21 +151,21 @@ class Keyword(object):
         unquote_bind = UnquoteBindKeyword()
         unquote_keywords = {'unquote_bind': unquote_bind}
 
-        qs = [SyntaxTransformer(unquote_keywords).visit(i) for i in q]
-        del q[0:len(q)]
-        for i in qs:
-            if isinstance(i, list):
-                q.extend(i)
-            else:
-                q.append(i)
+        def flatten(l):
+            res = []
+            for i in l:
+                if isinstance(i, list):
+                    res.extend(i)
+                else:
+                    res.append(i)
+            return res
 
-        qs = [TemplateExpander(loc, unquote_bind.bound_vars).visit(i) for i in q]
-        del q[0:len(q)]
-        for i in qs:
-            if isinstance(i, list):
-                q.extend(i)
-            else:
-                q.append(i)
+        def replace(q, l):
+            del q[0:len(q)]
+            q.extend(l)
+
+        replace(q, flatten([SyntaxTransformer(unquote_keywords).visit(i) for i in q]))
+        replace(q, flatten([TemplateExpander(loc, unquote_bind.bound_vars).visit(i) for i in q]))
 
         line_fixer = LineFixer()
         for i in q:
