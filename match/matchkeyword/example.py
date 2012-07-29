@@ -17,7 +17,7 @@ def other_test(msg):
     def closure():
         with match(msg):
            with case (('test', _, _)) as (a, b):
-              print "CLOSURE LINE NR SHOULD BE 19", lineno()
+              print "CLOSURE LINE NR SHOULD BE 20", lineno()
               assert lineno() == 21
               assert (a, b) == (1, 2)
         pass
@@ -30,7 +30,7 @@ def test(msg):
             print "TEST", msg
             if False:
                 print "A", a
-            print "LINE NR SHOULD BE 31", lineno()
+            print "LINE NR SHOULD BE 33", lineno()
             assert lineno() == 34
             print "OTHER", msg
             assert lineno() == 36
@@ -42,9 +42,9 @@ class MyActor(object):
         def process(self, msg):
             with match(msg):
                 with base(('test', _)):
-                    raise TestException("Exception at line 44")
+                    raise TestException("Exception at line 45")
                 with case(('other', _)):
-                    raise TestException("Exception at line 46")
+                    raise TestException("Exception at line 47")
 
 
     def run(self):
