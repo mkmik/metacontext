@@ -20,11 +20,14 @@ class timeit(MetaContext):
         if not any(self.evaluate(k.value) for k in args.keywords if k.arg == 'log'):
             log = []
 
+        time_module = ast.Name(translator.gensym(), ast.Load())
+
         with quote() as q:
             with unquote_bind(var) as res:
-                import time as _time
-                _start = _time.time()
-                unquote_stmts(body)
-                res = _time.time() - _start
-                unquote_stmts(log)
+                with unquote_bind(time_module) as xxxx:
+                    import time as _time
+                    _start = _time.time()
+                    unquote_stmts(body)
+                    res = _time.time() - _start
+                    unquote_stmts(log)
         return q

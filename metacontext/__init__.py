@@ -7,6 +7,22 @@ import os
 import sys
 
 
+def copy_location(ast_or_list, old_node):
+    if isinstance(ast_or_list, list):
+        return [ast.copy_location(i, old_node) for i in ast_or_list]
+    return ast.copy_location(ast_or_list, old_node)
+
+
+def flatten(l):
+    res = []
+    for i in l:
+        if isinstance(i, list):
+            res.extend(i)
+        else:
+            res.append(i)
+    return res
+
+
 class TranslatorImportHook(object):
 
     def __init__(self, tag=None):
@@ -114,7 +130,6 @@ class SyntaxTransformer(ast.NodeTransformer):
         return "__g_%s" % self.gensym_counter
 
     def visit_With(self, node):
-
         try:
             self.stack.append({})
 
@@ -130,7 +145,7 @@ class SyntaxTransformer(ast.NodeTransformer):
                     ast.fix_missing_locations(res)
                     return res
                 else:
-                    return [ast.copy_location(self.generic_visit(i), node) for i in translated]
+                    return flatten([copy_location(self.visit(i), node) for i in translated])
             else:
                 return self.generic_visit(node)
 
@@ -150,15 +165,6 @@ class MetaContext(object):
         from metacontext.template import UnquoteBindMetaContext
         unquote_bind = UnquoteBindMetaContext()
         unquote_keywords = {'unquote_bind': unquote_bind}
-
-        def flatten(l):
-            res = []
-            for i in l:
-                if isinstance(i, list):
-                    res.extend(i)
-                else:
-                    res.append(i)
-            return res
 
         def replace(q, l):
             del q[0:len(q)]
