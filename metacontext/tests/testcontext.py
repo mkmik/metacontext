@@ -3,7 +3,7 @@
 import ast
 
 from metacontext import Keyword
-from metacontext.template import quote, unquote_stmts, unquote_bind
+from metacontext.template import quote, unquote_stmts, unquote_bind, rhs
 
 
 class timeit(Keyword):
@@ -13,9 +13,8 @@ class timeit(Keyword):
     """
 
     def template(self, translator, body, args, var):
-        var_rhs = ast.Name(var.id, ast.Load())
         with quote() as log:
-            with unquote_bind(var_rhs) as res:
+            with unquote_bind(rhs(var)) as res:
                 print "Took", res
 
         if not any(self.evaluate(k.value) for k in args.keywords if k.arg == 'log'):
