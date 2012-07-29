@@ -64,3 +64,10 @@ def second_block(mesg):
         with case(('test', _)) as a:
             assert a == 1
             raise TestException("Exception at line 66")
+
+    with match(mesg):
+        with case(('other', _)):
+            raise TestException("Exception at line 70")
+        with case(('test', _)) as a:
+            assert a == 1
+            raise TestException("Exception at line 73")
