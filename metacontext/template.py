@@ -1,14 +1,14 @@
 import ast
 
-from metacontext import Keyword
+from metacontext import MetaContext
 
-class QuoteKeyword(Keyword):
+class QuoteMetaContext(MetaContext):
 
     def translate(self, translator, body, args, var):
         ast_sym = translator.gensym()
 
-        Keyword.templates[ast_sym] = body
-        mm = ast.Assign([var], ast.parse('Keyword.get_template("%s")' % ast_sym, mode='eval').body)
+        MetaContext.templates[ast_sym] = body
+        mm = ast.Assign([var], ast.parse('MetaContext.get_template("%s")' % ast_sym, mode='eval').body)
 
         locals_call = ast.copy_location(ast.Call(ast.Name('locals', ast.Load()), [], [], None, None), body[-1])
 
@@ -24,7 +24,7 @@ class QuoteKeyword(Keyword):
         return [mm, expand_expr]
 
 
-class UnquoteBindKeyword(Keyword):
+class UnquoteBindMetaContext(MetaContext):
     def __init__(self):
         self.bound_vars = {}
 
@@ -42,8 +42,8 @@ def lhs(name):
 
 
 
-quote = QuoteKeyword()
-unquote_bind = UnquoteBindKeyword()
+quote = QuoteMetaContext()
+unquote_bind = UnquoteBindMetaContext()
 
 unquote = object()
 unquote_stmts = object()

@@ -82,9 +82,9 @@ Which would have been written as::
 How to create your own meta context mangers
 --------------------------------------------
 
-Just create a `Keyword` subclass::
+Just create a `MetaContext` subclass::
 
-  class retry(Keyword):
+  class retry(MetaContext):
      def __init__(self, *excs):
         self.exceptions = excs
 
@@ -102,7 +102,7 @@ the MetaContext import hook::
   import metacontext
   metacontext.register_importer_hook()
 
-Then every source file that imports a symbol that resolves to a subclass of `Keyword` will
+Then every source file that imports a symbol that resolves to a subclass of `MetaContext` will
 be intercepted by the import hook and it's AST will be given to the meta context mangers
 which will usually transform the body of the `with` statement::
 
@@ -124,7 +124,7 @@ MetaContext offers a macro definition DSL that you can use to quickly create you
 
 The macro definition DSL itself is built using MetaContext constructs::
 
-  class retry(Keyword):
+  class retry(MetaContext):
      def __init__(self, *excs):
         self.exceptions = excs
 

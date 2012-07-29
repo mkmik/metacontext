@@ -2,14 +2,14 @@
 
 import ast
 
-from metacontext import Keyword
+from metacontext import MetaContext
 from metacontext.template import quote, unquote, unquote_stmts, unquote_bind
 import patternmatching
 
 class NoMatch(Exception):
     """should be in pattern match library"""
 
-class MatchKeyword(Keyword):
+class MatchMetaContext(MetaContext):
     NoMatch = NoMatch
 
     def __call__(self, msg, pattern):
@@ -28,7 +28,7 @@ class MatchKeyword(Keyword):
 
         return q
 
-class CaseKeyword(Keyword):
+class CaseMetaContext(MetaContext):
     def template(self, translator, body, args, var):
         try:
             match_msg_node = translator.stack[-2]['match_msg_Name']
@@ -52,5 +52,5 @@ class CaseKeyword(Keyword):
 
         return q
 
-match = MatchKeyword()
-case = CaseKeyword()
+match = MatchMetaContext()
+case = CaseMetaContext()

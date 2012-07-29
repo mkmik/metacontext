@@ -94,9 +94,9 @@ class TranslatorLoader(object):
                     as_name = alias.asname or name
 
                     keyword = getattr(mod, name)
-                    if inspect.isclass(keyword) and issubclass(keyword, Keyword):
+                    if inspect.isclass(keyword) and issubclass(keyword, MetaContext):
                         keywords[as_name] = keyword()
-                    elif isinstance(keyword, Keyword):
+                    elif isinstance(keyword, MetaContext):
                         keywords[as_name] = keyword
 
 
@@ -138,7 +138,7 @@ class SyntaxTransformer(ast.NodeTransformer):
             self.stack.pop()
 
 
-class Keyword(object):
+class MetaContext(object):
     templates = {}
 
     def expand(self, q, loc):
@@ -147,8 +147,8 @@ class Keyword(object):
                 if hasattr(i, 'lineno'):
                     del i.lineno
 
-        from metacontext.template import UnquoteBindKeyword
-        unquote_bind = UnquoteBindKeyword()
+        from metacontext.template import UnquoteBindMetaContext
+        unquote_bind = UnquoteBindMetaContext()
         unquote_keywords = {'unquote_bind': unquote_bind}
 
         def flatten(l):

@@ -2,11 +2,11 @@
 
 import ast
 
-from metacontext import Keyword
+from metacontext import MetaContext
 from metacontext.template import quote, unquote_stmts, unquote_bind, rhs
 
 
-class timeit(Keyword):
+class timeit(MetaContext):
     """Example metacontext manager built only for tests.
     The same functionality could be provided with a normal context manager.
 
