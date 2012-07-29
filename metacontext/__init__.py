@@ -59,7 +59,7 @@ class TranslatorLoader(object):
         return os.path.join(self.path, '%s.py' % module_name)
 
     def load_module(self, fullname):
-        print "Compiling module with match statement:", fullname
+        print "Compiling module with metacontexts:", fullname
         m = new.module(fullname)
         m.__file__ = self.src_name(fullname)
 
