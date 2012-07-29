@@ -159,7 +159,13 @@ class Keyword(object):
             else:
                 q.append(i)
 
-        [TemplateExpander(loc, unquote_bind.bound_vars).visit(i) for i in q]
+        qs = [TemplateExpander(loc, unquote_bind.bound_vars).visit(i) for i in q]
+        del q[0:len(q)]
+        for i in qs:
+            if isinstance(i, list):
+                q.extend(i)
+            else:
+                q.append(i)
 
         line_fixer = LineFixer()
         for i in q:

@@ -12,6 +12,6 @@ class timeit(Keyword):
 
     def template(self, translator, body, args, var):
         with quote() as q:
-            if True:
-                unquote_stmts(body)
+            print "TIMING"
+            unquote_stmts(body)
         return q
