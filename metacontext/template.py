@@ -29,7 +29,11 @@ class UnquoteBindMetaContext(MetaContext):
         self.bound_vars = {}
 
     def translate(self, translator, body, args, var):
-        self.bound_vars[var.id] = args.args[0]
+        if isinstance(var, ast.Tuple):
+            for i, v in enumerate(var.elts):
+                self.bound_vars[v.id] = args.args[i]
+        else:
+            self.bound_vars[var.id] = args.args[0]
         return body
 
 

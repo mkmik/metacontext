@@ -23,11 +23,10 @@ class timeit(MetaContext):
         time_module = ast.Name(translator.gensym(), ast.Load())
 
         with quote() as q:
-            with unquote_bind(var) as res:
-                with unquote_bind(time_module) as _time:
-                    import time as _time
-                    _start = _time.time()
-                    unquote_stmts(body)
-                    res = _time.time() - _start
-                    unquote_stmts(log)
+            with unquote_bind(var, time_module) as (res, _time):
+                import time as _time
+                _start = _time.time()
+                unquote_stmts(body)
+                res = _time.time() - _start
+                unquote_stmts(log)
         return q
