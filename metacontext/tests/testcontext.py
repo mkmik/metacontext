@@ -13,11 +13,14 @@ class timeit(MetaContext):
     """
 
     def template(self, translator, body, args, var):
-        with quote() as log:
-            with unquote_bind(rhs(var)) as res:
-                print "Took", res
-
-        if not any(self.evaluate(k.value) for k in args.keywords if k.arg == 'log'):
+        logging = [k.value for k in args.keywords if k.arg == 'log']
+        if logging:
+            logging = logging[0]
+            with quote() as log:
+                with unquote_bind(logging, rhs(var)) as (_logging, res):
+                    if _logging:
+                        print "Took", res
+        else:
             log = []
 
         time_module = ast.Name(translator.gensym(), ast.Load())

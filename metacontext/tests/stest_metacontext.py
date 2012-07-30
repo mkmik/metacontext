@@ -10,7 +10,16 @@ def stest_it():
     assert took >= 0
 
     with intercept_stdout() as msg:
-        with timeit(log=False) as took:
+        with timeit() as took:
+            print "Not logged"
+
+    assert took >= 0
+    assert msg.getvalue() == "Not logged\n"
+
+    dolog = False
+
+    with intercept_stdout() as msg:
+        with timeit(log=dolog) as took:
             print "Not logged"
 
     assert took >= 0
