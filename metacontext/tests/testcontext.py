@@ -24,7 +24,7 @@ class timeit(MetaContext):
 
         with quote() as q:
             with unquote_bind(var) as res:
-                with unquote_bind(time_module) as xxxx:
+                with unquote_bind(time_module) as _time:
                     import time as _time
                     _start = _time.time()
                     unquote_stmts(body)

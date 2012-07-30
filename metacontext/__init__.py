@@ -238,6 +238,15 @@ class TemplateExpander(ast.NodeTransformer):
             return self.evaluate(name)
         return node
 
+    def visit_Import(self, node):
+        """Fixup import aliases which use the same target name as
+        as symbol registered by quote_bind"""
+        for alias in node.names:
+            if alias.asname in self.bound_vars:
+                assert isinstance(self.bound_vars[alias.asname], ast.Name)
+                alias.asname = self.evaluate(self.bound_vars[alias.asname]).id
+        return node
+
     def evaluate(self, node):
         compiled = compile(ast.fix_missing_locations(ast.Expression(node)), '<string>', 'eval', 0, True)
         return eval(compiled, {}, self.loc)
