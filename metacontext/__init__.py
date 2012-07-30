@@ -229,10 +229,10 @@ class TemplateExpander(ast.NodeTransformer):
             name = self.bound_vars[node.id]
 
             from metacontext.template import rhs, lhs
-            if isinstance(name, ast.Call) and name.func.id == 'rhs':
+            if isinstance(name, ast.Call) and isinstance(name.func, ast.Name) and name.func.id == 'rhs':
                 return rhs(self.evaluate(name.args[0]))
 
-            if isinstance(name, ast.Call) and name.func.id == 'lhs':
+            if isinstance(name, ast.Call) and isinstance(name.func, ast.Name) and name.func.id == 'lhs':
                 return lhs(self.evaluate(name.args[0]))
 
             return self.evaluate(name)
